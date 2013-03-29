@@ -1,0 +1,8 @@
+Created: 1.31.11 (Jay Bolton)
+
+Simply run ./hosts.p22.sh
+Output goes into hosts.p22.live
+
+
+todo:
+have parameter output file in hosts.p22.sh

@@ -1,0 +1,56 @@
+Usage: ping [-LRUbdfnqrvVaAD] [-c count] [-i interval] [-w deadline]
+            [-p pattern] [-s packetsize] [-t ttl] [-I interface]
+            [-M pmtudisc-hint] [-m mark] [-S sndbuf]
+            [-T tstamp-options] [-Q tos] [hop1 ...] destination
+Usage: ping [-LRUbdfnqrvVaAD] [-c count] [-i interval] [-w deadline]
+            [-p pattern] [-s packetsize] [-t ttl] [-I interface]
+            [-M pmtudisc-hint] [-m mark] [-S sndbuf]
+            [-T tstamp-options] [-Q tos] [hop1 ...] destination
+PING osl-psyduck.oslabNIS (127.0.1.1) 56(84) bytes of data.
+64 bytes from osl-psyduck.oslabNIS (127.0.1.1): icmp_req=1 ttl=64 time=0.014 ms
+
+--- osl-psyduck.oslabNIS ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.014/0.014/0.014/0.000 ms
+PING osl-squirtle.evergreen.edu (10.14.3.134) 56(84) bytes of data.
+64 bytes from osl-squirtle.evergreen.edu (10.14.3.134): icmp_req=1 ttl=64 time=0.478 ms
+
+--- osl-squirtle.evergreen.edu ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.478/0.478/0.478/0.000 ms
+PING osl-ditto.evergreen.edu (10.14.3.133) 56(84) bytes of data.
+64 bytes from osl-ditto.evergreen.edu (10.14.3.133): icmp_req=1 ttl=64 time=0.488 ms
+
+--- osl-ditto.evergreen.edu ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.488/0.488/0.488/0.000 ms
+Usage: ping [-LRUbdfnqrvVaAD] [-c count] [-i interval] [-w deadline]
+            [-p pattern] [-s packetsize] [-t ttl] [-I interface]
+            [-M pmtudisc-hint] [-m mark] [-S sndbuf]
+            [-T tstamp-options] [-Q tos] [hop1 ...] destination
+<SshGateway id='osl-psyduck8' receive-live, 1 active channels> <= 
+<SshGateway id='osl-ditto1' receive-live, 1 active channels> <= 
+<SshGateway id='osl-squirtle0' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck3' receive-live, 1 active channels> <= 
+<SshGateway id='osl-squirtle1' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck0' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck5' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck2' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck7' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck9' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck4' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck1' receive-live, 1 active channels> <= 
+<SshGateway id='osl-psyduck6' receive-live, 1 active channels> <= 
+<SshGateway id='osl-ditto0' receive-live, 1 active channels> <= 
+last_known_prime = 9999991, n = 10000000
+
+Traceback (most recent call last):
+  File "./mersenne.py", line 251, in <module>
+    main()
+  File "./mersenne.py", line 242, in main
+    wf.run()
+  File "./mersenne.py", line 184, in run
+    self.workhorse_.heartbeat()
+  File "../m2/workflow/workflow.py", line 116, in heartbeat
+    completed_map[s] = s.get_finished()
+KeyboardInterrupt

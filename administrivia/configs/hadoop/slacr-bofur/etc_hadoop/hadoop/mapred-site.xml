@@ -1,0 +1,26 @@
+<configuration>
+     <property>
+         <name>mapred.job.tracker</name>
+         <value>10.14.3.134:54311</value>
+     </property>
+     <property>
+         <name>mapred.map.tasks</name>
+         <value>50</value>
+     </property>
+     <property>
+         <name>mapred.reduce.tasks</name>
+         <value>10</value>
+     </property>
+     <property>
+         <name>mapred.tasktracker.map.tasks.maximum</name>
+         <value>16</value>
+     </property>
+     <property>
+         <name>mapred.tasktracker.reduce.tasks.maximum</name>
+         <value>16</value>
+     </property>
+    <property>
+        <name>mapreduce.jobtracker.staging.root.dir</name>
+        <value>/user</value>
+    </property>
+</configuration>

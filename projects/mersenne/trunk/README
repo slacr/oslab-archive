@@ -1,0 +1,127 @@
+The Mersenne Prime's project documentation is here:
+
+  - http://trac.evergreen.edu/wiki/OSLab-Mersenne (horribly out of date for now)
+  - usage: python ./mersenne.py powerfilter_worker llt_worker
+           or for a complete list of options use
+             - python ./mersenne.py --help
+
+mersenne
+  trunk/
+    logs/  -- log depot where you can drop the log files
+    state/ -- state depot where you can snapshot your state
+    src/
+      m2/  -- a mersenne computation workflow system
+        workflow/    -- basic workflow system, independent of any mersenne-ness
+        workhorse/   -- subclass of workflow with state, execnet as middleware, and mersenne prime filters.
+      server/
+
+Architecture:
+  workflow
+  --------
+    uow -- a container for Units of Work (tasks that must be completed)
+    scheduler -- component that decides which work to dispatch to which workers
+    stage -- a queue of uow to be done
+    workflow -- the conductor which makes uow flow from stage to stage
+
+  workhorse
+  ---------
+    scheduler -- a scheduler which is capable of snapshotting its state to file (and reloading)
+    sieve_base -- a queue that can snapshot its state (and reload)
+    sieve -- a sieve_base that is aware of execnet tasks
+    workhorse -- a conductor which can snapshot itself.
+
+  server
+  ------
+    captain_cluster -- the wrapper for execnet connections and the server hardware it runs on
+    logger -- the central brain that handles multiple logfiles used concurrently by workers
+    mersenne -- the controling binary that sets up the configuration and produces runtime status updates
+    powerfilter_worker -- a python worker module that runs the Power Filter algorithm on a prime
+    llt_worker -- a python worker module that does an Lucas Lehmer algorithm, the gold standard for
+                  determining if a number is a Mersenne prime
+
+MILESTONES
+----------
+
+Execnet:
+ - execnet is a pure python distributed computation system.  This allows us
+   to take advantage of any python 2.7 platform, be it linux, windows or mac.
+ - execnet's documentation is ... not the clearest.  The remote_status() call
+   never behaved as expected, and seemed unreliable.  The examples in the
+   documentation seemed very contrived and inapplicable to real world needs,
+   but if you picked the right features, looked at the code, it proved to be
+   stable and quick.
+
+Workflow:
+ - The LLT algorithm takes a long time to run on large primes, and there are
+   many trivial-reject algorithms that can be tried first.  A workflow system,
+   where candidate primes were evaluated by a series of sieves before the
+   expensive LLT calculation was made allows for better utilization
+ - By isolating a particular algorithm to a single task for a worker, it is
+   possible to easily build up a large library of filters, and apply them in
+   whatever order makes the most sense without any code change.
+
+State:
+ - Periodicly storing the state of the work in progress to disk reduces the
+   amount of work which must be redone if there is a code error, a hw fault,
+   or a change in configuration (introduction or removal of a sieve).
+ - A further improvement to state management was using a sliding window queue
+   of work, and only attempting enough work to keep all of the remote workers
+   busy.  The work-in-progress state became very minimal.
+
+Fault Tolerant:
+ - The loss of a remote python process is handled in such a manner that the
+   work to be done can be restarted on a new worker (either on the same box
+   or a different box).
+ - The combination of state management also allows for complete loss of the
+   managing host and the resumption of work when it is restored.
+
+Heterogeneous Server Pools:
+ - the mac lab is an untapped source of python goodness.  The utilization
+   of the lab, and the great cpu power needed to perform the LLT calculation,
+   makes them poor candidates for LLT calculation.  They're great candidates
+   for Power Filters (and other simple sieves).  The Workflow system enables
+   workers to only handle a subset of tasks -- only those which make sense
+   for its harware -- which reduces the amount of lost work should a mac
+   be reset or the worker process killed by someone using the mac.
+
+TODO
+----
+
+ Workflow:
+  - dynamically adding and removing/resizing the worker pools based on the
+    load of the worker boxes.  Right now the managing process has to be
+    brought down and brought up to change the number of workers.
+
+ Server Pools:
+  - the capabilities of the servers are currently hard coded in code and an
+    .ini file -- it should be possible for that configuration to be generated
+    by a separate script, or cron job or whatever.  This could also tie in
+    with the dynamic resizing of the pools in the workflow.
+  - currently all servers need to be known ahead of time.  A script could
+    go and discover new machines as they come on the net (or remove them if
+    the load gets too high).
+
+ Fault Tolerance:
+  - mac and windows is just untested.
+  - testing outside of python 2.7 is just untested.  Older installs of python
+    on remote machines may not work at all.
+  - no testing was done on out-of-disk-space behavior.  It probably doesn't
+    do so well...
+
+ State:
+  - the state mechanism is stable, but it is not nearly as heavily used now
+    that the workflow system generates tasks as-needed.  It could be removed,
+    or better, made more module so that it can be re-used by the workers.  
+
+ Execnet:
+  - windows has a problem with ssh (it requires user interaction on the target
+    machine).  this should be solvable with a different windows config.
+  - the remote_status() call could be cool if it worked.
+  - each worker requires its own initial startup files. it would be great if
+    the workers could share things like static lists of primes.
+  - metrics metrics metrics
+  
+ Paper/Documentation:
+  - All of the functions need to be documented per python's style standards.
+  - The paper is vapor ware.
+  - trac documentation requires some lovin'

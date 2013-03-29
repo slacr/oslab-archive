@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>dfs.name.dir</name>
+    <value>/home/hadoop_data/name_table</value>
+    <description>Determines where on the local filesystem the DFS name node
+      should store the name table.  If this is a comma-delimited list
+      of directories then the name table is replicated in all of the
+      directories, for redundancy. </description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>dfs.data.dir</name>
+    <value>/home/hadoop_data/blocks/,/mnt/orca_oslab/hadoop_data/blocks/,/usr/local/storage/hdb/hadoop_data/blocks,/usr/local/storage/hdc/hadoop_data/blocks</value>
+    <description>Determines where on the local filesystem an DFS data node
+       should store its blocks.  If this is a comma-delimited
+       list of directories, then data will be stored in all named
+       directories, typically on different devices.
+       Directories that do not exist are ignored.
+    </description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>dfs.replication</name>
+    <value>3</value>
+  </property>
+
+  <property>
+    <name>dfs.permissions.superusergroup</name>
+    <value>hadoop</value>
+    <description>The name of the group of super-users.</description>
+  </property>
+
+</configuration>

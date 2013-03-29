@@ -1,0 +1,295 @@
+04:45:10 : 
+ skipping host #osl-snorlax
+
+04:45:10 : 
+ #osl-snorlax mentioned but not reachable. Ignoring.
+
+04:45:10 : 
+ skipping host #osl-bidoof
+
+04:45:10 : 
+ #osl-bidoof mentioned but not reachable. Ignoring.
+
+04:45:10 : 
+ creating janitor osl-psyduck
+
+04:45:10 : 
+ created janitor osl-psyduck
+
+04:45:10 : 
+ killing all python on osl-psyduck
+
+04:45:10 : 
+ killed all python on osl-psyduck
+
+04:45:10 : 
+ creating janitor osl-psyduck
+
+04:45:10 : 
+ created janitor osl-psyduck
+
+04:45:10 : 
+ creating janitor osl-psyduck
+
+04:45:11 : 
+ created janitor osl-psyduck
+
+04:45:11 : 
+ creating janitor osl-psyduck
+
+04:45:11 : 
+ created janitor osl-psyduck
+
+04:45:11 : 
+ creating janitor osl-psyduck
+
+04:45:11 : 
+ created janitor osl-psyduck
+
+04:45:11 : 
+ creating janitor osl-psyduck
+
+04:45:11 : 
+ created janitor osl-psyduck
+
+04:45:12 : 
+ creating janitor osl-psyduck
+
+04:45:12 : 
+ created janitor osl-psyduck
+
+04:45:12 : 
+ creating janitor osl-psyduck
+
+04:45:12 : 
+ created janitor osl-psyduck
+
+04:45:12 : 
+ creating janitor osl-psyduck
+
+04:45:12 : 
+ created janitor osl-psyduck
+
+04:45:12 : 
+ creating janitor osl-psyduck
+
+04:45:12 : 
+ created janitor osl-psyduck
+
+04:45:13 : 
+ creating janitor osl-psyduck
+
+04:45:13 : 
+ created janitor osl-psyduck
+
+04:45:13 : 
+ creating janitor osl-squirtle
+
+04:45:13 : 
+ created janitor osl-squirtle
+
+04:45:13 : 
+ killing all python on osl-squirtle
+
+04:45:13 : 
+ killed all python on osl-squirtle
+
+04:45:13 : 
+ creating janitor osl-squirtle
+
+04:45:14 : 
+ created janitor osl-squirtle
+
+04:45:14 : 
+ creating janitor osl-squirtle
+
+04:45:14 : 
+ created janitor osl-squirtle
+
+04:45:14 : 
+ creating janitor osl-squirtle
+
+04:45:14 : 
+ created janitor osl-squirtle
+
+04:45:15 : 
+ creating janitor osl-squirtle
+
+04:45:15 : 
+ created janitor osl-squirtle
+
+04:45:15 : 
+ creating janitor osl-squirtle
+
+04:45:15 : 
+ created janitor osl-squirtle
+
+04:45:15 : 
+ creating janitor osl-squirtle
+
+04:45:16 : 
+ created janitor osl-squirtle
+
+04:45:16 : 
+ creating janitor osl-squirtle
+
+04:45:16 : 
+ created janitor osl-squirtle
+
+04:45:16 : 
+ creating janitor osl-squirtle
+
+04:45:17 : 
+ created janitor osl-squirtle
+
+04:45:17 : 
+ creating janitor osl-ditto
+
+04:45:17 : 
+ created janitor osl-ditto
+
+04:45:17 : 
+ killing all python on osl-ditto
+
+04:45:17 : 
+ killed all python on osl-ditto
+
+04:45:17 : 
+ creating janitor osl-ditto
+
+04:45:17 : 
+ created janitor osl-ditto
+
+04:45:18 : 
+ creating janitor osl-ditto
+
+04:45:18 : 
+ created janitor osl-ditto
+
+04:45:18 : 
+ creating janitor osl-ditto
+
+04:45:18 : 
+ created janitor osl-ditto
+
+04:45:18 : 
+ creating janitor osl-ditto
+
+04:45:19 : 
+ created janitor osl-ditto
+
+04:45:19 : 
+ creating janitor osl-ditto
+
+04:45:19 : 
+ created janitor osl-ditto
+
+04:45:19 : 
+ creating janitor osl-ditto
+
+04:45:20 : 
+ created janitor osl-ditto
+
+04:45:20 : 
+ creating janitor osl-ditto
+
+04:45:20 : 
+ created janitor osl-ditto
+
+04:45:20 : 
+ creating janitor osl-ditto
+
+04:45:20 : 
+ created janitor osl-ditto
+
+04:45:21 : 
+ skipping host #osl-kushmaster
+
+04:45:21 : 
+ #osl-kushmaster mentioned but not reachable. Ignoring.
+
+04:45:21 : 
+We have 26 connections
+
+04:45:21 : rsyncing primes.primes_file to cluster
+
+04:45:21 : rsync'd primes to machines in cluster
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck0
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck1
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck2
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck3
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck4
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck5
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck6
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck7
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck8
+
+04:45:21 : 
+ giving LLT work to : osl-psyduck9
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle0
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle1
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle2
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle3
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle4
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle5
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle6
+
+04:45:21 : 
+ giving LLT work to : osl-squirtle7
+
+04:45:21 : 
+ giving LLT work to : osl-ditto0
+
+04:45:21 : 
+ giving LLT work to : osl-ditto1
+
+04:45:21 : 
+ giving LLT work to : osl-ditto2
+
+04:45:21 : 
+ giving LLT work to : osl-ditto3
+
+04:45:21 : 
+ giving LLT work to : osl-ditto4
+
+04:45:21 : 
+ giving LLT work to : osl-ditto5
+
+04:45:21 : 
+ giving LLT work to : osl-ditto6
+
+04:45:21 : 
+ giving LLT work to : osl-ditto7
+

@@ -1,0 +1,464 @@
+#LyX 1.5.6 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Subsection*
+Obtaining Resources.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Local Access
+\end_layout
+
+\begin_layout Standard
+The following is to illustrate how process running on a single machine accesses
+ resources on said machine.
+ 
+\end_layout
+
+\begin_layout Standard
+When a process (P1) makes a read request, the processes memory is checked
+ for the requested resource we'll call 
+\emph on
+x
+\emph default
+.
+ The following steps follow 
+\emph on
+P1s
+\emph default
+ request for 
+\emph on
+x
+\emph default
+; 
+\emph on
+P1
+\emph default
+ executes a traps and passes the process to the kernel.
+ The kernel then checks memory to see if 
+\emph on
+x
+\emph default
+ is there.
+ If it is, the resource is passed back to the process, and the request is
+ complete.
+ If not, the kernel interupts P1 (putting it in a suspended state).
+ The kernel then sends a request for 
+\emph on
+x to
+\emph default
+ the disc.
+ In the meantime (the in-between time) the processor is passed to another
+ waiting process (P2).
+ Once the disc has successfully obtained x, it sends an interupt to the
+ kernel and sends x to P1.
+ Upon receiving x, P1s state is changed to 'ready' and may execute when
+ it again has the processor.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Facts and Figures/jpgs/SimpleLocalAccess.jpg
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As an example, we'll define 
+\emph on
+P1
+\emph default
+ as a process that simply reads resources 
+\emph on
+x y
+\emph default
+ and 
+\emph on
+z
+\emph default
+.
+ Resources 
+\emph on
+x
+\emph default
+ and 
+\emph on
+y
+\emph default
+ are in memory and 
+\emph on
+x
+\emph default
+ is stored on disc.
+ Read 
+\emph on
+x
+\emph default
+ will look like this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Facts and Figures/jpgs/SimpleLocalAccessEg1.jpg
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Read 
+\emph on
+y
+\emph default
+ looks like:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Facts and Figures/jpgs/SimpleLocalAccessEg2.jpg
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Smooth running so far.
+ It is when 
+\emph on
+z
+\emph default
+ is requested that things get slowed down:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Facts and Figures/jpgs/SimpleLocalAccessEg3.jpg
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Retrieving resources from disc takes longer than from memory and 
+\emph on
+P1
+\emph default
+ is put in a suspended state until 
+\emph on
+z
+\emph default
+ gets to memory.
+ This highlights the bottleneck here; 
+\emph on
+P1 
+\emph default
+may not continue until it has 
+\emph on
+z
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Network File Share
+\end_layout
+
+\begin_layout Standard
+A Network File Share, refered to as NFS, allows the access files across
+ remote machines over a network as if the files were local.
+ Basically, there is an NFS Server, that has the file system stored at a
+ specified mount point, and Clients, that mount to the Servers mount point.
+ This makes accessing resources seem local, but there is alot more going
+ on under the hood than just local access.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Facts and Figures/jpgs/SimpleNFS.jpg
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following steps are followed when a process 
+\emph on
+P1
+\emph default
+, on a Client 
+\emph on
+C1
+\emph default
+, requests resource 
+\emph on
+x
+\emph default
+, that is located on the NFS.
+ First the process on 
+\emph on
+C1
+\emph default
+ makes a local access request for 
+\emph on
+x
+\emph default
+.
+ But 
+\emph on
+x
+\emph default
+ isn't local, it's on the NFS! The request is forwarded to the NFS Server,
+ which does its own local access request for 
+\emph on
+x
+\emph default
+.
+ From here, 
+\emph on
+x 
+\emph default
+may or may not be in memory.
+ Once obtained by the Server, 
+\emph on
+x
+\emph default
+ is sent back to 
+\emph on
+C1
+\emph default
+, then 
+\emph on
+P1
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Ok so that's not 
+\emph on
+all
+\emph default
+ that happens.
+ In addition, when 
+\emph on
+C1
+\emph default
+s kernel makes the local access request 
+\end_layout
+
+\begin_layout Standard
+This works fine for things such as storage of home directories over a network.
+ For a process such as the local access example (above) though, the bottleneck
+ stays the same; disc requests will still suspend processes.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Distributed File System
+\end_layout
+
+\begin_layout Standard
+A Distributed File System, refered to as DFS, is similar to an NFS, with
+ some modifications.
+ There is the implementation of a Block System, in which the whole file
+ system is broken into blocks, each block is then stored on its own Storage
+ Server.
+ There is also a Meta Server is thrown in the mix.
+ The Meta Server does not contain any blocks of the file system, rather,
+ it keeps track of what block of data is on each Storage Server.
+ 
+\end_layout
+
+\begin_layout Standard
+So when process 
+\emph on
+P1
+\emph default
+ on client 
+\emph on
+C1
+\emph default
+ needs resource 
+\emph on
+x
+\emph default
+, it first tells the Meta Server that it needs 
+\emph on
+x
+\emph default
+.
+ The Meta Server looks the location of 
+\emph on
+x
+\emph default
+ and sends that location back to 
+\emph on
+C1
+\emph default
+.
+ 
+\emph on
+C1
+\emph default
+ may now request 
+\emph on
+x
+\emph default
+ from the Storage Server that the Meta Server had specified.
+\end_layout
+
+\begin_layout Standard
+This potentially outperforms NFS because the amount of the file system on
+ each storage server is less than the file system itself, resulting in an
+ increased chance that the requested resource is in memory, rather than
+ on disc, on its Storage Server.
+\end_layout
+
+\end_body
+\end_document

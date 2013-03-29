@@ -1,0 +1,633 @@
+#LyX 1.5.6 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+The Growth of a Process from Kernel-Buffered to Having Friends: How Distributed
+ Computing Works and Doesn't Work: Ideas For a Future Tomorrow Today: What
+ We Learned in That Little Room in the Corner of The Computer Center at
+ The Evergreen State College.
+\end_layout
+
+\begin_layout Author
+Philip Ramsey & Rodger Brown
+\end_layout
+
+\begin_layout Abstract
+The Scientific Lab for Academic Computing Research (SLACR) Lab for Advanced
+ Computing Research Labs (ACRL) Computing Research Lab (SLACRL) is a joint
+ project initiated by advanced Computer Science students and Computer Science
+ faculty.
+ Currently the lab is structured around a cluster of 23 computers.
+ Utilizing modern cluster computing methods students and faculty will be
+ able to expand their research in ways only available at larger universities.
+ By establishing our lab as a site for such collaborative work we hope to
+ redefine Computer Science at Evergreen as not just a tool to other sciences,
+ but as an independent field of research that can both advance our work
+ in computer science and provide meaningful support to other scientific
+ study at The Evergreen State College.
+ The purpose of this paper is to give a brief introduction to some of the
+ concepts and key components used in the development of distributed computing
+ applications.
+ In it we discuss the main methods used to perform inter-process communication,
+ both locally and remotely, as well as a description of ways to mitigate
+ the negative impact of network IO in distributed environments.
+\end_layout
+
+\begin_layout Section*
+Introduction
+\end_layout
+
+\begin_layout Standard
+The buzzwords here are 
+\begin_inset Quotes eld
+\end_inset
+
+Distributed Computing
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+Cluster
+\begin_inset Quotes erd
+\end_inset
+
+.
+ But what the eff is a Cluster really? And how does Distributed Computing
+ actually work? If we talk abstractly enough, then we can say that a cluster
+ is simply a collection of connected computers and Distributed Computing
+ works by getting multiple processes to work in collusion to perform a given
+ task.
+ For a more adequate definition of these terms we must define the words
+ and concepts used in the abstract definition.
+ This paper discusses ways to implement multiple processes on a single machine,
+ on multiple machines, and ways to generate communication between them.
+ 
+\end_layout
+
+\begin_layout Section*
+Multiple Processes
+\end_layout
+
+\begin_layout Standard
+The operating system's basic unit of measure is a process.
+ The operating system (OS) scheduler schedules processes; the OS memory
+ manager manages a collection of process page tables.
+ If the OS receives a request for some kernel level function to be performed,
+ the request is made on behalf of a running process.
+ In systems like Linux, this is a rather immutable fact.
+\end_layout
+
+\begin_layout Subsection*
+Fork
+\end_layout
+
+\begin_layout Standard
+A process is able to spawn new processes by calling the function fork().
+ The process that calls fork() is the parent process, the process created
+ by fork() is a child process.
+ When a child process is spawned, it gets its own process table and the
+ kernel replicates all of the data in memory for the parent process to a
+ new set of memory addresses for the child process to work with.
+ This includes all of the instruction set and data that the parent had.
+ Since the parent and child have unique process id's, code can be conditioned
+ trivially to ensure that these two processes are working on independent
+ execution sequences in the same program.
+ 
+\end_layout
+
+\begin_layout Standard
+A couple of complications with the basic fork() approach can be seen rather
+ easily.
+ 
+\end_layout
+
+\begin_layout Itemize
+If the child process doesn't really need to work on all the data that the
+ parent had allocated before the fork(), then there's a potential for a
+ big waste of memory allocation.
+ 
+\end_layout
+
+\begin_layout Itemize
+If the child does need to work on the data, what if they need to work on
+ the same data as the parent, not just a copy, but the exact same data?
+ 
+\end_layout
+
+\begin_layout Standard
+Before addressing the first complication, a more exact definition for the
+ layout of a process is needed.
+ What does it mean to copy a process? How does the OS determine which parts
+ of the process are to be copied in relation to one another? Before a process
+ begins running, it is an executable, or binary, file.
+ Binary files are broken up into segments determined by what's called the
+ Executable and Linkable Format.
+ The segmentation of a binary file allows the executable as a whole to be
+ non-contiguously, or even partially, loaded into memory without a loss
+ of continuity by simply providing pointers to the memory location of the
+ next segment address.
+ 
+\end_layout
+
+\begin_layout Standard
+With this specification we can see that copying the memory space of a process
+ can be done by iterating through these pointers, and replicating both the
+ sequence and data to another block or set of pages in memory.
+ If the goal is to avoid the replication of data needlessly, then all that
+ is needed is a way to distinguish which segments are needed and which are
+ not.
+ The simplest approach is known as the COPY_ON_WRITE strategy.
+ In this strategy, when a child is spawned, no replication of data is done.
+ Instead, the child is provided with the pointers to the same memory addresses
+ as the parent.
+ If, at any time in execution, either the parent or child makes a write
+ request to a shared memory address, that particular address is replicated
+ to a new location, the write is performed, and that process is given the
+ new address pointer to prevent modifying the others memory space.
+\end_layout
+
+\begin_layout Standard
+We can see that this simple explanation of the COPY_ON_WRITE approach satisfies
+ the first complication, but, since this strategy strictly enforces non-squashin
+g of data by either process, it in no way accounts for the second.
+ So let's turn to it, then.
+\end_layout
+
+\begin_layout Subsection*
+Threads
+\end_layout
+
+\begin_layout Standard
+As we stated earlier, the basic unit of the OS is the process.
+ This means that when the OS assigns addressable memory, it is looking at
+ the permissions and allocations of a process as a whole.
+ Because of this, the intuitive solution is to have a single process working
+ in parallel with itself, executing multiple instruction sequences concurrently,
+ without the OS looking at these sequences as independent process executions.
+ This is called threading.
+ Threading is a convenient way to allow a process to spawn multiple execution
+ chains, similar to fork(), without the overhead of creating a wholly new
+ process.
+ Since the threads are members of the same process, they all have rights
+ to the addressable memory of the process that spawned them.
+ This means that they can see each others writes.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Pipes
+\end_layout
+
+\begin_layout Standard
+Threading clearly satisfies our second concern, but is not the only way.
+ Another foundational approach is the use of pipes.
+ As is in keeping with the Unix tradition, pipes are built on top of the
+ idea of the file.
+ Pipes afford a process the opportunity to treat the data that it works
+ with in a similar manner to how a process works with a file, which means
+ that the data itself becomes utilizable similar to how files get utilized:
+ as shared objects.
+ When a process opens a pipe, it creates a new file descriptor that it can
+ both read and write to, respectively.
+ If, for example, after a process opened a pipe, it were to fork(), then
+ both the parent and the child would have access to the read end and write
+ end of the pipe, allowing them to pass data back and forth.
+ But the benefit of pipes goes further than this.
+ In general, a pipe opened as writable by one process can be opened as readable
+ by another.
+ Since pipes are treated like files by the operating system, they can be
+ passed between processes as needed without the iterative process of copying
+ one memory space to another.
+\end_layout
+
+\begin_layout Standard
+So now we're getting somewhere.
+ We've got a tool at our disposal that will allow processes to transfer
+ data back and forth as needed.
+ Pipes satisfy the concern of waste full memory allocation by allowing the
+ only shared data to be data written to the pipe file descriptor.
+ The potential concern of needing a child process to work on the same data
+ (not just a copy) as the parent process is satisfied by allowing any permitted
+ process the ability to read an opened pipe.
+ Great good alright.
+ Sort of.
+ While the resource of pipes gives us so much, it also leads to more questions.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Signals
+\end_layout
+
+\begin_layout Standard
+What happens when multiple processes don't need to send data, but simply
+ need to let each other know where they're at in an execution sequence?
+ The question here is whether or not we need to generate all the meta data,
+ conditioned handlers, and I/O associated with using file descriptors, just
+ to have one process tell another process something that could be communicated
+ in 1 byte or less.
+ It is absolutely overkill to open a pipe for the sole purpose of sending
+ flags back and forth.
+ So what do we do? We use Signals.
+ 
+\end_layout
+
+\begin_layout Standard
+In Unix environments, the kernel can send a predefined set of signals to
+ a running process.
+ For example, if a process were to try to write to a memory address that
+ it did not have permission to write to, the kernel would send a SIGSEGV
+ signal to interrupt the violating process and terminate its execution.
+ Accordingly, a process can request that the kernel send a signal to another
+ process.
+ Thus if a process wanted to, for example, kill another process, it could
+ request that the kernel send that process the SIGKILL signal.
+ These signals would then be received and handled by the process.
+ The important thing here is that the handling of a signal can be designed
+ at the programmatic level.
+ Such that, if process A wishes to send an interrupt to a waiting process
+ B to indicate that process B execute function f(), then process B simply
+ needs to have a registered handler for the interrupt from A that causes
+ f to be executed.
+ It's that simple!
+\end_layout
+
+\begin_layout Section*
+Multiple Machines
+\end_layout
+
+\begin_layout Standard
+Signals, Pipes, Threads, etc are all well and good, but have a fundamental
+ limitation: they're all handled by a single operating system.
+ So how do pipes share data with processes that are not on the same machine?
+ That is to say, how could a pipe file descriptor be used by a remote machine?
+ It couldn't, unless that other machine was able to address the same memory
+ or file system as the local machine.
+ See now this is where it starts to get interesting.
+ If we want to share data or pass messages to a remote host, we need to
+ be able to address that host.
+ As a corollary, if we want to pass messages to a remote process, we need
+ to be able to both address the host of the remote process, as well as the
+ process itself.
+ This addressing is achieved with sockets.
+\end_layout
+
+\begin_layout Subsection*
+Sockets
+\end_layout
+
+\begin_layout Standard
+Each host linked up to a network has a unique network address, or IP, that
+ can be used to identify it remotely.
+ But in and of itself, sending a stream or packet of data to an IP address
+ does not provide enough information to guarantee that the right process
+ on the remote machine will recognize whether the data is intended for them
+ or not.
+ To circumvent this issue, we use the first portion of a network message
+ as a header, storing what's called a port along with the source and destination
+ IP's.
+ The combination of an IP and a port is called a socket.
+ With a socket, a process can send a stream or packets of bytes off to any
+ process listening on that port on any number of remote hosts.
+ 
+\end_layout
+
+\begin_layout Standard
+Sockets themselves are not enough to ensure that the message gets where
+ it's going.
+ Sockets are just addresses; it's not the number on your mailbox that gets
+ the mail to your door, it's the postal service.
+ There are two main types of sockets: connected and connectionless.
+ Both of these are used ubiquitously to handle networking layers and we'll
+ talk about them both briefly.
+ 
+\end_layout
+
+\begin_layout Standard
+Before doing so, there's an important vision here that we need to make sure
+ we aren't losing track of.
+ Namely, there exist concepts in the world that we refer to as tasks and,
+ although we have not yet provided a definition for this concept, the execution
+ of these concepts requires tools; what we are doing now is building up
+ the definitions for tools that can be used to execute tasks.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Datagram Sockets
+\end_layout
+
+\begin_layout Standard
+Connectionless (datagram) sockets allow packet loss.
+ What this means is that, if A sends packet C with a datagram protocol to
+ B, there is no guarantee that C will be received by B.
+ As a corollary, if A sends both C and D in order to B, there is no guarantee
+ that the order will be maintained upon receipt.
+ This is a double-edged sword in a lot of ways.
+ On the one hand, there is a lot of speedup that can be gotten by not requiring
+ too much hand shaking between A and B.
+ For example, Dynamic Host Configuration Protocol (DHCP) uses User Datagram
+ Protocol (UDP), the main protocol used in datagram architectures, as the
+ underlying transport layer specifically because the transactions between
+ DHCP clients and servers can happen fast (not to mention that the DHCP
+ protocol itself applies layers of handshaking on top of UDP that make it
+ relatively reliable).
+ On the other hand, not being able to provide assurance of data integrity
+ makes it difficult to apply this architecture to protocols like HTTP, which
+ require both well-ordered and complete messages from A to B.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Stream Sockets
+\end_layout
+
+\begin_layout Standard
+Connected (stream) sockets provide the well-ordered, two-way communication
+ that connectionless (datagram) sockets do not.
+ Transfer Control Protocol (TCP), the most common stream protocol, is an
+ integral part of most every application that needs these guarantees (remote
+ shells, NFS, HTTP, etc).
+ What these applications have in common is a requisite dependency on the
+ data integrity.
+ This dependency is fulfilled by virtue of the definition of a stream socket:
+ "[stream socket] Provides sequenced, reliable, bidirectional, connection-mode
+ byte streams..." (from man 3 socket).
+ In other words, a streamed socket generates a buffer on both ends of the
+ connection.
+ With each send it provides details of what data is to be expected as well
+ as providing the expectation of confirmation of receipt.
+\end_layout
+
+\begin_layout Standard
+With TCP and UDP we can start to see how remote inter process communication
+ can start to be put together.
+ In fact, with the tools we've defined already, we have enough to lay a
+ groundwork for what is meant by a Distributed Environment.
+ However, the only definition we have (so far) for what events might be
+ better served by distributed computing is the implicit definition of a
+ process that requires the tools that we've defined.
+ That just wont do.
+ 
+\end_layout
+
+\begin_layout Section*
+Example: Sort
+\end_layout
+
+\begin_layout Standard
+Let's start with something simple.
+ If we have a data set of natural language that is arbitrarily large, how
+ might we alphabetically sort that data set rather efficiently? 
+\end_layout
+
+\begin_layout Standard
+If we assume that the algorithm we use to sort a natural language data set
+ N has a complexity contingent on the size of N, then it is simple to see
+ that, on top of the theoretical complexity C of our algorithm applied to
+ N (C(N)).
+ We must also incorporate into our analysis the layer of complexity L that
+ results from the growth of N beyond the scope of our main memory.
+ We're mainly talking about memory thrashing and page faults here.
+ These are no joke and can really impact the efficiency of our application
+ as N grows.
+ So what do we do? We try to figure out a way to reduce the application
+ of L on C(N).
+ Effectively, we try to make N smaller.
+ This obviously can't be done because to make N smaller is to truncate the
+ data set N.
+ Instead we just want to throw more resources at the problem; the more processor
+s and memory we can spread N around on, the more we can mitigate the effects
+ of L on our application.
+\end_layout
+
+\begin_layout Standard
+We know that there is a method to transmit data to and from a process on
+ a remote machine.
+ We also know that on a local machine we can move data from a process to
+ another process via pipes/forks/threads.
+ With both of these capabilities we encounter a really powerful opportunity:
+ If we do it right, we can hook up an arbitrary number of machines, equipped
+ with their own processors and memory, to do the work as a group.
+ The key here is that we maintain the property of being able to hook more
+ and more machines up, without any nontrivial changes to the architecture
+ or configuration; we want our solution to be scalable.
+\end_layout
+
+\begin_layout Standard
+So let's give this a shot, let's set up one process that is designed to
+ sort a given data set D.
+ Another that communicates with other processes on the network about their
+ sorting activities over di, a subset of D.
+ If, for each processor running on a network, we had a process monitoring
+ network traffic related to the general task of sorting D, as well as a
+ process dedicated to the actual sorting of its subset di in D, we could
+ potentially do some damage.
+ 
+\end_layout
+
+\begin_layout Standard
+But we can do one better.
+ Let's make the process that's doing all the network monitoring not even
+ care about the sorting task.
+ Instead, we'll call it a daemon and use it as a general gateway to all
+ the machines in our network that are running similar processes.
+ With a bit of socket programming, we can get each machine to have it's
+ own daemon running, listening for and broadcasting on the same port any
+ requests that need be sent/received.
+ It may be an understatement to say 'a bit of socket programming' in this
+ case though.
+ In fact, it's not that trivial of a thing at all.
+\end_layout
+
+\begin_layout Standard
+In this example of sorting natural language we've got difficult problems
+ (that are not exclusive to natural language) to think about before we can
+ get much further.
+ 
+\end_layout
+
+\begin_layout Section*
+Computers Talking to Computers
+\end_layout
+
+\begin_layout Subsection*
+Were is the data that all these machines are working with? How is it accessed?
+\end_layout
+
+\begin_layout Standard
+We need a way to keep the data dynamically available to all the machines
+ in our network.
+ We actually need a couple more tools to solve this problem: Interface Descripti
+on Languages (IDL) and Remote Procedure Calls (RPC).
+ 
+\end_layout
+
+\begin_layout Standard
+IDL's were created way back when and popularized by the Open Group.
+ The whole idea is that of creating a language-neutral environment for processes
+ to communicate with.
+ In many cases, IDL's are the very thing that make it possible for our sparkstat
+ion running Android's Java API to be able to perform inter process communication
+ with our NetBSD Amiga server's Haskell apps.
+ A good example of such a case is an RPC.
+ 
+\end_layout
+
+\begin_layout Standard
+RPC's are not too far off from Local Procedure Calls (LPC).
+ An LPC works by a process calling a procedure that is defined in a specific
+ calling location.
+ When the call is made, the calling process gives control over to the called
+ procedure, which performs the specific actions of that procedure and then
+ returns the values associated with the call to the calling process, at
+ which point the calling process continues execution.
+ 
+\end_layout
+
+\begin_layout Standard
+With RPC's the difference is that the calling process is actually calling
+ a stub handler, which then translates the call into an IDL request.
+ This IDL request includes all the parameters specified by the calling process,
+ as well as the socket to the associated procedure call's remote server.
+ How does the stub know the socket to forward the request on? It asks a
+ program called a portmapper which keeps tabs of all the open sockets and
+ what RPC's they're set to handle.
+ 
+\end_layout
+
+\begin_layout Standard
+Equipped with RPC's we can do some pretty cool stuff.
+ What we'll do here is generate a system where we've got a bunch of servers
+ that all work together to store all or part of the data set locally, and
+ clients that will ask these servers for all or parts of the data set as
+ needed.
+ To get this to work, The servers all need to be able to communicate with
+ one another, as well as with all the clients.
+ These two communication channels are very different though.
+\end_layout
+
+\begin_layout Standard
+Server-server communications need to guarantee that all file descriptors,
+ read/write flags, etc are being shared, as well as passing around (or at
+ least storing the remote location of) the actual bits of a newly modified
+ file (we call this replication).
+ It needs these file descriptors so that when a client asks about a certain
+ file, it can tell it what's up.
+ It needs flags indicating the current state of the file so that, if it
+ gets a write request from a client, it can check to make sure that no one
+ else has a copy out that they're writing to.
+ It needs to either have a local copy of the file or know who does, so that
+ when someone asks to read it, it can feed it the bits or tell 'em who can.
+\end_layout
+
+\begin_layout Standard
+For the clients to be able to utilize the data on the servers using standard
+ libraries and function calls, it needs to be able to maintain the file
+ descriptors of the data locally as though the files themselves were local.
+ With RPC's, all of these specifications get broken into separate procedures,
+ which get written as stubs that a calling process can use to access the
+ junk on another junkbox, verifying that the called processes are both registere
+d with the calling process's portmapper and are, in fact, waiting for the
+ request.
+\end_layout
+
+\begin_layout Standard
+No bigs, right? Sure.
+ It's just a Cluster File System (CFS) is all.
+\end_layout
+
+\begin_layout Subsection*
+How do daemons communicate with one another?
+\end_layout
+
+\begin_layout Standard
+This question also requires us to define a new way to pass bytes around:
+ eXternal Data Representation (XDR).
+ Developed by Sun back in the 80's, XDR provides a way to send bytes around
+ to remote machines, independent of what architecture may be running.
+ It's similar to an IDL, except that it's sole purpose is for making an
+ architecture-neutral way to copy bytes from one machine to another, whereas
+ IDL's are more robustly designed to handle procedural statements.
+ Because of this, the impetus is on the programmer who uses XDR to verify
+ that the type of data that is sent is the type of data that the recipient
+ expects to receive.
+ Regardless, XDR, coupled with a CFS, provides us with a way to demonstrate
+ how daemons may communicate.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, one of many approaches could be to set a single daemon to keep
+ track of what data subsets have been sorted and what haven't.
+ In this way we could have this master daemon waiting for other slave daemons
+ to report to it when they are ready for work.
+ Then the master daemon could query the CFS to determine an appropriate
+ subset that needs sorting.
+ Initially, the master daemon could access the CFS to compile a list of
+ all the subsets that need sorting, then dish out a single instance of that
+ subset to each of the available nodes.
+ When a given node finishes their instance, and while the master has more
+ instances to dish out, the given node can signal the master to indicate
+ that it is ready for another subset, and the master can send it a pointer
+ to the next instance in the list.
+ O...M...G!!!
+\end_layout
+
+\begin_layout Section*
+If a machine fails at it's job when no one is around, does it make a sound?
+\end_layout
+
+\begin_layout Standard
+So we've given a brief outline of some of the tools and protocols required
+ to develop what could be called a distributed computing environment.
+ Much of this overview has glossed over the more technical points, and we've
+ ignored altogether some strategies or approaches that we didn't get to
+ play with this year.
+ Our goal for this paper was simply to develop a framework from within which
+ we could think more clearly and critically about distributed computing.
+ And this we have done.
+ So, pizza party.
+\end_layout
+
+\end_body
+\end_document
