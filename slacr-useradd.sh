@@ -22,7 +22,6 @@ USERDIR=/home/osl/
 GROUP=cluster
 
 
-
 # Makes sure you're running this as root
 if [ $(whoami) != 'root' ]; then
   echo "You should probably be running this as root bro."
@@ -35,18 +34,38 @@ elif [[ $1 == '--remove' ]]; then
     exit 1
   fi
 
-  read -p "Are you sure? " -n 1 -r
+  read -p "Are you sure? Type the username again to confirm: " -r
   echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
+  if [[ $REPLY == $2 ]]; then
     echo "Deleting user and their homedir..."
     userdel -r $2
     echo "Recompiling NIS..."
     make -C /var/yp
     
-    echo -e "\nRIP $2\n"
+    EPITAPH=`echo $2 | sed  -e :a -e 's/^.\{1,30\}$/ & /;ta'`
+    IFS=%
+    RIP=$" 
+     _.---,._,' 
+    /' _.--.<              we will always
+      /'     ''             remember you
+    /' _.---._____$EPITAPH
+    \\.'   ___, .-'' 
+        /'    \\\\             
+      /'       '-.         -|-
+     |                      |
+     |                  .-'~~~'-.
+     |                 .'       '.
+     |                 |  R I P  |
+     |                 |         |
+     |                 |         |
+      \\              \\\\\|         |//
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    "
+    echo -e $RIP
+    unset IFS
     exit
   else
-    echo "Good idea. Sleep on it."
+    echo "Usernames did not match, aborting."
     exit
   fi
 
@@ -89,9 +108,10 @@ else
   # password (or not) and accept the defaults for the other questions.
 	su -c 'ssh-keygen' - $USER
   echo Adding public key for user $USER to the lab machines
-	cat $HOMEDIR/.ssh/id_rsa.pub >> $HOMEDIR/.ssh/authorized_keys
+	su -c 'cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys' - $USER
   chmod 700 $HOMEDIR/.ssh
   chmod 600 $HOMEDIR/.ssh/*
+  chmod 644 $HOMEDIR/.ssh/id_rsa.pub
 
 	# push new data to all nodes and we're done
   echo Compiling NIS...
