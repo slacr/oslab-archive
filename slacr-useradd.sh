@@ -4,6 +4,15 @@
 # Does everything to add cluster user, comments explain what and why.
 # Make sure to run on the NIS server (slacr).
 
+# ----- USAGE ------------------------------------------------
+# to add user: 
+#         ./slacr-useradd.sh <username> [<primary group>]
+#
+# to baleet user: 
+#         ./slacr-useradd.sh --remove <username>
+# ------------------------------------------------------------
+
+
 # If any one command fails, exit the script
 set -e
 
@@ -12,21 +21,50 @@ USERDIR=/home/osl/
 # Traditionally, users' primary group is cluster. I don't know why it's not users.
 GROUP=cluster
 
-if [ -z $1 ] || [[ $1 == -* ]]; then
+
+
+# Makes sure you're running this as root
+if [ $(whoami) != 'root' ]; then
+  echo "You should probably be running this as root bro."
+  exit 1
+
+# Code to remove user and their homedir
+elif [[ $1 == '--remove' ]]; then
+  if [ -z $2 ]; then
+    echo "Remove whom?"
+    exit 1
+  fi
+
+  read -p "Are you sure? " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Deleting user and their homedir..."
+    userdel -r $2
+    echo "Recompiling NIS..."
+    make -C /var/yp
+    
+    echo -e "\nRIP $2\n"
+    exit
+  else
+    echo "Good idea. Sleep on it."
+    exit
+  fi
+
+# Help/usage
+elif [ -z $1 ] || [[ $1 == -* ]]; then 
   echo "SLACR useradd script (to be run as root on the NIS server)"
   echo "adds a new user to NIS, then makes and adds ssh key pairs for them."
-  echo "    USAGE: $0 <username> [<primary group (default:$GROUP)>]"
+  echo "       USAGE:  $0 <username> [<primary group (default:$GROUP)>]"
+  echo "   TO REMOVE:  $0 --remove <username>"
   exit 1
 
-elif [ $(whoami) != 'root' ]; then
-  echo you should probably be running this as root bro.
-  exit 1
-
+# Actually add the user
 else
-  if [ $2 ]; then
+  if [ $2 ]; then  # If group was specified, set it
     GROUP=$2
   fi
   
+  # Set some handy vars
   USER=$1
   HOMEDIR=$USERDIR$USER
 
@@ -59,7 +97,7 @@ else
   echo Compiling NIS...
 	make -C /var/yp
 
-  # make sure you test it!
+  # Make sure the machine actually thinks the user exists
   if id -u $USER >/dev/null 2>&1; then
     echo -e "\nDone! Test it out by logging in or sshing as $USER. Enjoy the new account!\n"
     exit 0
@@ -70,3 +108,4 @@ else
   fi
 fi
 
+exit
