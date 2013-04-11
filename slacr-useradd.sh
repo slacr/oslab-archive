@@ -42,7 +42,7 @@ elif [[ $1 == '--remove' ]]; then
     echo "Recompiling NIS..."
     make -C /var/yp
     
-    EPITAPH=`echo $2 | sed  -e :a -e 's/^.\{1,30\}$/ & /;ta'`
+    EPITAPH=`echo $2 | sed  -e :a -e 's/^.\{1,30\}$/ & /;ta'` # "a pretty pity"
     IFS=%
     RIP=$" 
      _.---,._,' 
@@ -62,7 +62,9 @@ elif [[ $1 == '--remove' ]]; then
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     "
     echo -e $RIP
+    echo -e $RIP >> /var/log/rip.log  # The graveyard of our lost ones
     unset IFS
+
     exit
   else
     echo "Usernames did not match, aborting."
