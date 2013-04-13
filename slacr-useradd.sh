@@ -6,7 +6,7 @@
 
 # ----- USAGE ------------------------------------------------
 # to add user: 
-#         ./slacr-useradd.sh <username> [<primary group>]
+#         ./slacr-useradd.sh <username> [<primary group (default: cluster)>]
 #
 # to baleet user: 
 #         ./slacr-useradd.sh --remove <username>
@@ -75,7 +75,7 @@ elif [[ $1 == '--remove' ]]; then
 elif [ -z $1 ] || [[ $1 == -* ]]; then 
   echo "SLACR useradd script (to be run as root on the NIS server)"
   echo "adds a new user to NIS, then makes and adds ssh key pairs for them."
-  echo "       USAGE:  $0 <username> [<primary group (default:$GROUP)>]"
+  echo "       USAGE:  $0 <username> [<primary group (default: $GROUP)>]"
   echo "   TO REMOVE:  $0 --remove <username>"
   exit 1
 
@@ -92,7 +92,7 @@ else
   # add the user to passwd and shadow
   # sets the user's home dir and group appropriately
 	echo Adding user $USER to group $GROUP
-	useradd -d $HOMEDIR -g $GROUP $USER
+	useradd -b $USERDIR -g $GROUP $USER
 
 	# makes user's home dir
 	echo Creating home directory $HOMEDIR
